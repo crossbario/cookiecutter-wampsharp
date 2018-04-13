@@ -1,10 +1,10 @@
 {
-    "service_title": "Microservice 1 (WampSharp/C# based)",
-    "service_name": "microservice_1",
+    "service_title": "App Service (WampSharp/C# based)",
+    "service_name": "service_1",
 
-    "image": ["mono:5.8", "mono:5.8-slim"],
+    "image": "mono:5.8",
 
-    "url": "ws://localhost:8080/ws",
+    "url": "ws://127.0.0.1:8080/ws",
     "realm": "realm1",
 
     "_copy_without_render": [

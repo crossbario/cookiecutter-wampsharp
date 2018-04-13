@@ -1,44 +1,44 @@
-using System;
+﻿using System;
+using System.Threading.Tasks;
 using WampSharp.V2;
 using WampSharp.V2.Client;
+using WampSharp.V2.Fluent;
 
-namespace MyNamespace
+namespace MyService
 {
-    internal class Program
+    class Program
     {
-        public static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            DefaultWampChannelFactory factory =
-                new DefaultWampChannelFactory();
+            string url = "ws://127.0.0.1:8080/ws/";
+            string realm = "realm1";
 
-            const string serverAddress = "ws://127.0.0.1:8080/ws";
+            WampChannelFactory channelFactory = new WampChannelFactory();
 
             IWampChannel channel =
-                factory.CreateJsonChannel(serverAddress, "realm1");
+                channelFactory.ConnectToRealm(realm)
+                    .WebSocketTransport(new Uri(url))
+                    .JsonSerialization()
+                    .Build();
 
-            channel.Open().Wait(5000);
+            // Fire this code when the connection establishes
+            channel.RealmProxy.Monitor.ConnectionEstablished += (sender, e) =>
+            {
+                Console.WriteLine("Session open! :" + e.SessionId);
+            };
 
-            IWampRealmProxy realmProxy = channel.RealmProxy;
+            // Fire this code when the connection has broken
+            channel.RealmProxy.Monitor.ConnectionBroken += (sender, e) =>
+            {
+                Console.WriteLine("Session closed! :" + e.Reason);
+            };
 
-            int received = 0;
-            IDisposable subscription = null;
+            await channel.Open().ConfigureAwait(false);
 
-            subscription =
-                realmProxy.Services.GetSubject<int>("com.myapp.topic1")
-                     .Subscribe(x =>
-                         {
-                             Console.WriteLine("Got Event: " + x);
+            // Your code goes here: use WAMP via the channel variable to
+            // call, register, subscribe and publish ..
 
-                             received++;
-
-                             if (received > 5)
-                             {
-                                 Console.WriteLine("Closing ..");
-                                 subscription.Dispose();
-                             }
-                         });
-
-            Console.ReadLine();
+            await Task.Delay(1000);
         }
     }
 }

@@ -5,7 +5,8 @@ build:
 image: {{ 'img_' + cookiecutter.service_name }}
 user: "{{ cookiecutter.uid }}"
 network_mode: host
-entrypoint: /client
 command:
+  - /usr/bin/dotnet
+  - MyService.dll
   - {{ cookiecutter.url }}
   - {{ cookiecutter.realm }}

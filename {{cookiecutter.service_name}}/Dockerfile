@@ -1,17 +1,23 @@
-FROM mono:5.8
+#
+# stage 1: build target app
+#
+FROM microsoft/dotnet:sdk AS build-env
+WORKDIR /build
 
-WORKDIR /root
-ADD client.cs .
+# copy csproj and restore as distinct layers
+COPY *.csproj ./
+RUN dotnet restore
 
-RUN nuget install WampSharp.Default.Client
+# copy everything else and build everything
+# in the "out" directory
+COPY . ./
+RUN dotnet publish -c Release -o out
 
-RUN find /root/ | grep -i wamp
+#
+# stage 2: build runtime image
+#
+FROM microsoft/dotnet:runtime
+COPY --from=build-env /build/out /client
 
-# FIXME: https://gist.github.com/oberstet/d46d1eb9bbfeef1f85fa2e2ab9642f7d
-RUN mono-csc \
-    -r:System.Reactive.Interfaces \
-    -r:/root/WampSharp.18.3.2/lib/net45/WampSharp.dll \
-    -r:/root/WampSharp.Default.Client.18.3.2/lib/net45/WampSharp.Default.Client.dll \
-    client.cs
-
-CMD ["mono", "/root/client.exe"]
+WORKDIR /client
+CMD ["/usr/bin/dotnet", "MyService.dll"]

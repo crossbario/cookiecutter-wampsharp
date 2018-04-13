@@ -1,6 +1,6 @@
 # {{cookiecutter.service_title}}
 
-[WampSharp](https://github.com/Code-Sharp/WampSharp) (C# on Mono) based service:
+[WampSharp](https://github.com/Code-Sharp/WampSharp) (C#/.NET) based service:
 
 * service title: **"{{cookiecutter.service_title}}"**
 * service name: **{{cookiecutter.service_name}}**
